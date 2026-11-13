@@ -735,3 +735,15 @@ a:focus-visible {
     gap: 12px;
   }
 }
+/* ENLACES LEGALES EN EL PIE DE PAGINA */
+
+.footer-legal a {
+  color: var(--technology);
+  font-weight: 600;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+.footer-legal a:hover {
+  color: var(--primary);
+}
