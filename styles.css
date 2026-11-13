@@ -747,3 +747,40 @@ a:focus-visible {
 .footer-legal a:hover {
   color: var(--primary);
 }
+/* HERO - NUEVOS ACCESOS POR AUDIENCIA */
+
+.hero-actions {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-bottom: 25px;
+}
+
+.hero-actions .button-primary,
+.hero-actions .header-link {
+  display: inline-flex;
+  min-height: 49px;
+  align-items: center;
+  justify-content: center;
+}
+
+.hero-claim {
+  color: var(--muted);
+  font-family: "Montserrat", "Inter", Arial, sans-serif;
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.2px;
+}
+
+@media (max-width: 520px) {
+  .hero-actions {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .hero-actions a {
+    width: 100%;
+    text-align: center;
+  }
+}
