@@ -534,3 +534,58 @@ a:focus-visible {
     gap: 12px;
   }
 }
+
+/* AJUSTE RESPONSIVE DEL LOGOTIPO Y ENCABEZADO */
+
+@media (max-width: 520px) {
+  .site-header {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    align-items: center;
+    column-gap: 12px;
+    row-gap: 14px;
+    padding: 16px 5%;
+  }
+
+  .site-header > .brand {
+    grid-column: 1;
+    min-width: 0;
+    max-width: 100%;
+  }
+
+  .site-header > .brand img {
+    width: clamp(104px, 36vw, 150px);
+    max-width: 100%;
+    height: auto;
+    max-height: none;
+  }
+
+  .site-header > .header-link {
+    grid-column: 2;
+    justify-self: end;
+    max-width: 145px;
+    padding: 8px 10px;
+    text-align: center;
+    white-space: normal;
+    font-size: 10px;
+  }
+
+  .site-header .main-nav {
+    grid-column: 1 / -1;
+    width: 100%;
+    min-width: 0;
+    justify-content: space-between;
+    gap: 10px;
+    overflow: visible;
+  }
+
+  .site-header .main-nav a {
+    font-size: clamp(9px, 2.6vw, 11px);
+    white-space: normal;
+  }
+
+  .footer-brand img {
+    width: clamp(130px, 44vw, 160px);
+    max-height: none;
+  }
+}
