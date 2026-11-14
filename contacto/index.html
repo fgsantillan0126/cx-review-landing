@@ -1,0 +1,1238 @@
+
+<!DOCTYPE html>
+<html lang="es-AR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <title>Contacto | CX-Review</title>
+
+  <meta name="description"
+    content="Contactate con CX-Review. Consultanos sobre auditorías e-commerce, mystery shopping, compliance, operaciones y experiencia de cliente.">
+
+  <meta name="robots" content="index, follow">
+  <meta name="theme-color" content="#ffffff">
+
+  <link rel="canonical" href="https://cx-review.com.ar/contacto/">
+
+  <link rel="stylesheet" href="/styles.css?v=20261113-2">
+
+  <style>
+    /* =====================================================
+       CONTACTO — CX-REVIEW
+       Estilos específicos de la página
+    ===================================================== */
+
+    .cr-contact {
+      color: var(--text, #26364a);
+      background: var(--paper, #ffffff);
+    }
+
+    .cr-contact *,
+    .cr-contact *::before,
+    .cr-contact *::after {
+      box-sizing: border-box;
+    }
+
+    .cr-contact-header {
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      width: 100%;
+      background: rgba(255,255,255,.94);
+      border-bottom: 1px solid var(--line, #e4e9ef);
+      backdrop-filter: blur(14px);
+    }
+
+    .cr-contact-header-inner {
+      width: min(1180px, 90%);
+      min-height: 76px;
+      margin: 0 auto;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 24px;
+    }
+
+    .cr-contact-brand {
+      flex-shrink: 0;
+      color: var(--primary, #123052);
+      font-family: "Montserrat", "Inter", Arial, sans-serif;
+      font-size: 22px;
+      font-weight: 800;
+      letter-spacing: -1px;
+      text-decoration: none;
+    }
+
+    .cr-contact-brand span {
+      color: var(--technology, #3979ad);
+    }
+
+    .cr-contact-nav {
+      display: flex;
+      align-items: center;
+      justify-content: flex-end;
+      gap: 27px;
+    }
+
+    .cr-contact-nav a {
+      color: var(--muted, #69788a);
+      font-size: 12px;
+      font-weight: 600;
+      text-decoration: none;
+      transition: color .2s ease;
+    }
+
+    .cr-contact-nav a:hover,
+    .cr-contact-nav a.active {
+      color: var(--primary, #123052);
+    }
+
+    .cr-contact-menu-button {
+      display: none;
+      width: 42px;
+      height: 42px;
+      padding: 8px;
+      border: 1px solid var(--line, #e4e9ef);
+      border-radius: 4px;
+      color: var(--primary, #123052);
+      background: white;
+      font-size: 22px;
+      cursor: pointer;
+    }
+
+    .cr-contact-main {
+      min-height: 650px;
+    }
+
+    .cr-contact-hero {
+      padding: 82px 5% 65px;
+      background: var(--surface, #f5f7fa);
+      border-bottom: 1px solid var(--line, #e4e9ef);
+    }
+
+    .cr-contact-hero-inner {
+      max-width: 1180px;
+      margin: 0 auto;
+    }
+
+    .cr-contact-eyebrow {
+      margin: 0 0 20px;
+      color: var(--technology, #3979ad);
+      font-family: "Montserrat", "Inter", Arial, sans-serif;
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: 1.8px;
+      text-transform: uppercase;
+    }
+
+    .cr-contact-hero h1 {
+      max-width: 850px;
+      margin: 0;
+      color: var(--primary, #123052);
+      font-family: "Montserrat", "Inter", Arial, sans-serif;
+      font-size: clamp(36px, 5vw, 56px);
+      font-weight: 700;
+      line-height: 1.14;
+      letter-spacing: -1.8px;
+    }
+
+    .cr-contact-hero h1 span {
+      color: var(--technology, #3979ad);
+    }
+
+    .cr-contact-hero-description {
+      max-width: 690px;
+      margin: 25px 0 0;
+      color: var(--muted, #69788a);
+      font-size: 15px;
+      line-height: 1.85;
+    }
+
+    .cr-contact-content {
+      width: min(1180px, 90%);
+      margin: 0 auto;
+      padding: 85px 0 105px;
+      display: grid;
+      grid-template-columns: minmax(260px, .78fr) minmax(0, 1.22fr);
+      gap: 75px;
+      align-items: start;
+    }
+
+    .cr-contact-information {
+      padding-top: 12px;
+    }
+
+    .cr-contact-information h2 {
+      margin: 0 0 18px;
+      color: var(--primary, #123052);
+      font-family: "Montserrat", "Inter", Arial, sans-serif;
+      font-size: 27px;
+      line-height: 1.3;
+      letter-spacing: -.6px;
+    }
+
+    .cr-contact-information > p {
+      margin: 0 0 36px;
+      color: var(--muted, #69788a);
+      font-size: 13px;
+      line-height: 1.9;
+    }
+
+    .cr-contact-detail {
+      padding: 21px 0;
+      border-top: 1px solid var(--line, #e4e9ef);
+    }
+
+    .cr-contact-detail:last-of-type {
+      border-bottom: 1px solid var(--line, #e4e9ef);
+    }
+
+    .cr-contact-detail-label {
+      display: block;
+      margin-bottom: 9px;
+      color: var(--muted, #69788a);
+      font-family: "Montserrat", "Inter", Arial, sans-serif;
+      font-size: 9px;
+      font-weight: 700;
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+    }
+
+    .cr-contact-detail a {
+      color: var(--primary, #123052);
+      font-size: 14px;
+      font-weight: 600;
+      text-decoration: none;
+      overflow-wrap: anywhere;
+    }
+
+    .cr-contact-detail a:hover {
+      color: var(--technology, #3979ad);
+    }
+
+    .cr-contact-note {
+      margin-top: 34px;
+      padding: 21px;
+      border-left: 3px solid var(--technology, #3979ad);
+      background: var(--surface, #f5f7fa);
+    }
+
+    .cr-contact-note p {
+      margin: 0;
+      color: var(--muted, #69788a);
+      font-size: 12px;
+      line-height: 1.8;
+    }
+
+    .cr-contact-form-card {
+      padding: 42px;
+      border: 1px solid var(--line, #e4e9ef);
+      background: var(--paper, #ffffff);
+      box-shadow: 0 12px 40px rgba(11,45,91,.045);
+    }
+
+    .cr-contact-form-heading {
+      margin-bottom: 32px;
+    }
+
+    .cr-contact-form-heading h2 {
+      margin: 0 0 10px;
+      color: var(--primary, #123052);
+      font-family: "Montserrat", "Inter", Arial, sans-serif;
+      font-size: 25px;
+      font-weight: 700;
+      letter-spacing: -.6px;
+    }
+
+    .cr-contact-form-heading p {
+      margin: 0;
+      color: var(--muted, #69788a);
+      font-size: 12px;
+      line-height: 1.7;
+    }
+
+    .cr-contact-form {
+      display: flex;
+      flex-direction: column;
+      gap: 21px;
+    }
+
+    .cr-contact-field {
+      display: flex;
+      flex-direction: column;
+      gap: 9px;
+    }
+
+    .cr-contact-field label {
+      color: var(--primary, #123052);
+      font-size: 11px;
+      font-weight: 700;
+    }
+
+    .cr-contact-field label .optional {
+      color: var(--muted, #8995a3);
+      font-weight: 400;
+    }
+
+    .cr-contact-field input,
+    .cr-contact-field select,
+    .cr-contact-field textarea {
+      width: 100%;
+      min-height: 47px;
+      padding: 12px 14px;
+      border: 1px solid var(--line, #dce3eb);
+      border-radius: 3px;
+      outline: none;
+      color: var(--text, #26364a);
+      background: #ffffff;
+      font-family: inherit;
+      font-size: 13px;
+      transition: border-color .2s ease, box-shadow .2s ease;
+    }
+
+    .cr-contact-field textarea {
+      min-height: 145px;
+      resize: vertical;
+      line-height: 1.7;
+    }
+
+    .cr-contact-field input:focus,
+    .cr-contact-field select:focus,
+    .cr-contact-field textarea:focus {
+      border-color: var(--technology, #3979ad);
+      box-shadow: 0 0 0 3px rgba(57,121,173,.09);
+    }
+
+    .cr-contact-field input::placeholder,
+    .cr-contact-field textarea::placeholder {
+      color: #a1aab5;
+    }
+
+    .cr-contact-consents {
+      display: flex;
+      flex-direction: column;
+      gap: 17px;
+      padding-top: 6px;
+    }
+
+    .cr-contact-consent {
+      display: flex;
+      align-items: flex-start;
+      gap: 11px;
+      color: var(--muted, #69788a);
+      font-size: 11px;
+      line-height: 1.7;
+      cursor: pointer;
+    }
+
+    .cr-contact-consent input {
+      width: 16px;
+      height: 16px;
+      flex: 0 0 16px;
+      margin: 2px 0 0;
+      accent-color: var(--technology, #3979ad);
+      cursor: pointer;
+    }
+
+    .cr-contact-consent a {
+      color: var(--technology, #3979ad);
+      font-weight: 600;
+      text-decoration: underline;
+      text-underline-offset: 2px;
+    }
+
+    .cr-contact-consent-optional {
+      padding-top: 15px;
+      border-top: 1px solid var(--line, #e4e9ef);
+    }
+
+    .cr-contact-captcha {
+      min-height: 65px;
+      display: flex;
+      align-items: center;
+    }
+
+    .cr-contact-submit {
+      width: 100%;
+      min-height: 51px;
+      padding: 13px 20px;
+      border: none;
+      border-radius: 3px;
+      color: #ffffff;
+      background: var(--primary, #123052);
+      font-family: "Montserrat", "Inter", Arial, sans-serif;
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: .6px;
+      text-transform: uppercase;
+      cursor: pointer;
+      transition: background .2s ease, transform .2s ease;
+    }
+
+    .cr-contact-submit:hover:not(:disabled) {
+      background: var(--technology, #3979ad);
+      transform: translateY(-1px);
+    }
+
+    .cr-contact-submit:disabled {
+      opacity: .55;
+      cursor: not-allowed;
+    }
+
+    .cr-contact-status {
+      min-height: 20px;
+      margin: 0;
+      color: var(--muted, #69788a);
+      font-size: 12px;
+      line-height: 1.6;
+    }
+
+    .cr-contact-status[data-state="success"] {
+      color: #24734b;
+    }
+
+    .cr-contact-status[data-state="error"] {
+      color: #a33d3d;
+    }
+
+    .cr-contact-status[data-state="pending"] {
+      color: #8a641c;
+    }
+
+    .cr-contact-honeypot {
+      position: absolute !important;
+      left: -10000px !important;
+      width: 1px !important;
+      height: 1px !important;
+      overflow: hidden !important;
+    }
+
+    .cr-contact-footer {
+      padding: 36px 5%;
+      border-top: 1px solid var(--line, #e4e9ef);
+      background: var(--surface, #f5f7fa);
+    }
+
+    .cr-contact-footer-inner {
+      width: min(1180px, 100%);
+      margin: 0 auto;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 24px;
+    }
+
+    .cr-contact-footer-brand {
+      color: var(--primary, #123052);
+      font-family: "Montserrat", "Inter", Arial, sans-serif;
+      font-size: 15px;
+      font-weight: 800;
+      letter-spacing: -.5px;
+    }
+
+    .cr-contact-footer-links {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 21px;
+    }
+
+    .cr-contact-footer-links a {
+      color: var(--muted, #69788a);
+      font-size: 10px;
+      text-decoration: none;
+    }
+
+    .cr-contact-footer-links a:hover {
+      color: var(--primary, #123052);
+    }
+
+    .cr-contact-copyright {
+      width: min(1180px, 100%);
+      margin: 24px auto 0;
+      padding-top: 19px;
+      border-top: 1px solid var(--line, #e4e9ef);
+      color: var(--muted, #8995a3);
+      font-size: 10px;
+    }
+
+    @media (max-width: 850px) {
+      .cr-contact-content {
+        grid-template-columns: 1fr;
+        gap: 45px;
+      }
+
+      .cr-contact-information {
+        max-width: 650px;
+      }
+    }
+
+    @media (max-width: 700px) {
+      .cr-contact-header-inner {
+        min-height: 68px;
+      }
+
+      .cr-contact-menu-button {
+        display: block;
+      }
+
+      .cr-contact-nav {
+        position: absolute;
+        top: 68px;
+        left: 0;
+        right: 0;
+        display: none;
+        padding: 20px 5% 25px;
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 19px;
+        background: #ffffff;
+        border-bottom: 1px solid var(--line, #e4e9ef);
+      }
+
+      .cr-contact-nav.open {
+        display: flex;
+      }
+
+      .cr-contact-nav a {
+        font-size: 13px;
+      }
+
+      .cr-contact-hero {
+        padding: 65px 6% 52px;
+      }
+
+      .cr-contact-hero h1 {
+        font-size: clamp(34px, 9vw, 46px);
+        letter-spacing: -1.2px;
+      }
+
+      .cr-contact-hero-description {
+        font-size: 13px;
+      }
+
+      .cr-contact-content {
+        width: 88%;
+        padding: 62px 0 75px;
+      }
+
+      .cr-contact-form-card {
+        padding: 27px 22px;
+      }
+
+      .cr-contact-form-heading h2 {
+        font-size: 22px;
+      }
+
+      .cr-contact-footer-inner {
+        align-items: flex-start;
+        flex-direction: column;
+      }
+
+      .cr-contact-footer-links {
+        gap: 15px;
+      }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      .cr-contact *,
+      .cr-contact *::before,
+      .cr-contact *::after {
+        scroll-behavior: auto !important;
+        transition-duration: .01ms !important;
+      }
+    }
+  </style>
+</head>
+
+<body>
+
+<div class="cr-contact">
+
+  <!-- ENCABEZADO -->
+
+  <header class="cr-contact-header">
+    <div class="cr-contact-header-inner">
+
+      <a class="cr-contact-brand" href="/" aria-label="CX-Review, inicio">
+        CX<span>-</span>Review
+      </a>
+
+      <button
+        class="cr-contact-menu-button"
+        id="crContactMenuButton"
+        type="button"
+        aria-label="Abrir menú"
+        aria-expanded="false"
+        aria-controls="crContactNavigation">
+        ☰
+      </button>
+
+      <nav class="cr-contact-nav" id="crContactNavigation" aria-label="Navegación principal">
+        <a href="/">Inicio</a>
+        <a href="/metodologia/">Metodología</a>
+        <a href="/areas/">Áreas</a>
+        <a href="/privacidad/">Privacidad</a>
+        <a href="/terminos/">Términos</a>
+        <a href="/contacto/" class="active" aria-current="page">Contacto</a>
+      </nav>
+
+    </div>
+  </header>
+
+
+  <main class="cr-contact-main">
+
+    <!-- PRESENTACIÓN -->
+
+    <section class="cr-contact-hero">
+      <div class="cr-contact-hero-inner">
+
+        <p class="cr-contact-eyebrow">
+          CONTACTO · CX-REVIEW
+        </p>
+
+        <h1>
+          Conversemos sobre tu operación
+          <span>e-commerce.</span>
+        </h1>
+
+        <p class="cr-contact-hero-description">
+          Analizamos la experiencia de compra, la calidad comercial,
+          el cumplimiento y el desempeño operativo de las tiendas online.
+          Contanos qué necesitás evaluar.
+        </p>
+
+      </div>
+    </section>
+
+
+    <!-- INFORMACIÓN Y FORMULARIO -->
+
+    <section class="cr-contact-content">
+
+      <!-- INFORMACIÓN INSTITUCIONAL -->
+
+      <aside class="cr-contact-information">
+
+        <p class="cr-contact-eyebrow">
+          HABLEMOS
+        </p>
+
+        <h2>
+          Estamos para escucharte.
+        </h2>
+
+        <p>
+          Cada operación tiene sus propios desafíos.
+          Compartinos tu consulta y evaluaremos cómo podemos ayudarte
+          a identificar oportunidades de mejora, riesgos y puntos críticos
+          en tu operación digital.
+        </p>
+
+        <div class="cr-contact-detail">
+
+          <span class="cr-contact-detail-label">
+            Correo institucional
+          </span>
+
+          <a href="mailto:info@cx-review.com.ar">
+            info@cx-review.com.ar
+          </a>
+
+        </div>
+
+        <div class="cr-contact-detail">
+
+          <span class="cr-contact-detail-label">
+            Instagram
+          </span>
+
+          <a
+            href="https://www.instagram.com/cx_review"
+            target="_blank"
+            rel="noopener noreferrer">
+            @cx_review
+          </a>
+
+        </div>
+
+        <div class="cr-contact-note">
+          <p>
+            CX-Review trabaja con un enfoque independiente,
+            basado en evidencia y orientado a mejorar la calidad
+            de las operaciones de comercio electrónico.
+          </p>
+        </div>
+
+      </aside>
+
+
+      <!-- FORMULARIO -->
+
+      <section class="cr-contact-form-card">
+
+        <div class="cr-contact-form-heading">
+
+          <p class="cr-contact-eyebrow">
+            CONSULTAS
+          </p>
+
+          <h2>
+            Enviar una consulta
+          </h2>
+
+          <p>
+            Completá los siguientes datos para que podamos
+            comprender tu necesidad.
+          </p>
+
+        </div>
+
+
+        <form
+          class="cr-contact-form"
+          id="cxContactForm"
+          novalidate>
+
+          <div class="cr-contact-field">
+            <label for="contactFullName">
+              Nombre y apellido *
+            </label>
+
+            <input
+              type="text"
+              id="contactFullName"
+              name="fullName"
+              maxlength="120"
+              autocomplete="name"
+              placeholder="Tu nombre y apellido"
+              required>
+          </div>
+
+
+          <div class="cr-contact-field">
+            <label for="contactEmail">
+              Correo electrónico *
+            </label>
+
+            <input
+              type="email"
+              id="contactEmail"
+              name="email"
+              maxlength="254"
+              autocomplete="email"
+              placeholder="nombre@empresa.com"
+              required>
+          </div>
+
+
+          <div class="cr-contact-field">
+            <label for="contactCompany">
+              Empresa <span class="optional">(opcional)</span>
+            </label>
+
+            <input
+              type="text"
+              id="contactCompany"
+              name="company"
+              maxlength="160"
+              autocomplete="organization"
+              placeholder="Nombre de la empresa">
+          </div>
+
+
+          <div class="cr-contact-field">
+            <label for="contactPhone">
+              Teléfono <span class="optional">(opcional)</span>
+            </label>
+
+            <input
+              type="tel"
+              id="contactPhone"
+              name="phone"
+              maxlength="40"
+              autocomplete="tel"
+              placeholder="Código de área y número">
+          </div>
+
+
+          <div class="cr-contact-field">
+            <label for="contactReason">
+              Motivo de consulta *
+            </label>
+
+            <select
+              id="contactReason"
+              name="reason"
+              required>
+
+              <option value="">Seleccionar una opción</option>
+              <option value="Auditoría e-commerce">
+                Auditoría e-commerce
+              </option>
+              <option value="Mystery shopping">
+                Mystery shopping
+              </option>
+              <option value="Compliance">
+                Compliance
+              </option>
+              <option value="Operaciones">
+                Operaciones
+              </option>
+              <option value="Customer Experience">
+                Customer Experience
+              </option>
+              <option value="Otro">
+                Otro
+              </option>
+
+            </select>
+          </div>
+
+
+          <div class="cr-contact-field">
+            <label for="contactMessage">
+              Mensaje *
+            </label>
+
+            <textarea
+              id="contactMessage"
+              name="message"
+              maxlength="3000"
+              placeholder="Contanos brevemente qué necesitás evaluar o qué consulta querés realizar."
+              required></textarea>
+          </div>
+
+
+          <!-- DECLARACIONES DE PRIVACIDAD -->
+
+          <div class="cr-contact-consents">
+
+            <label class="cr-contact-consent">
+              <input
+                type="checkbox"
+                id="privacyNoticeRead"
+                name="privacyNoticeRead"
+                value="true"
+                required>
+
+              <span>
+                Declaro que leí el
+                <a href="/privacidad/" target="_blank" rel="noopener noreferrer">
+                  Aviso de Privacidad
+                </a>.
+              </span>
+            </label>
+
+
+            <label class="cr-contact-consent">
+              <input
+                type="checkbox"
+                id="dataProcessingConsent"
+                name="dataProcessingConsent"
+                value="true"
+                required>
+
+              <span>
+                Autorizo el tratamiento de los datos personales
+                proporcionados para gestionar esta consulta,
+                de acuerdo con la
+                <a href="/privacidad/" target="_blank" rel="noopener noreferrer">
+                  Política de Privacidad
+                </a>.
+              </span>
+            </label>
+
+
+            <!-- CONSENTIMIENTO COMERCIAL OPCIONAL -->
+
+            <label class="cr-contact-consent cr-contact-consent-optional">
+              <input
+                type="checkbox"
+                id="marketingConsent"
+                name="marketingConsent"
+                value="true">
+
+              <span>
+                Deseo recibir novedades, informes y comunicaciones
+                comerciales de CX-Review.
+              </span>
+            </label>
+
+          </div>
+
+
+          <!-- HONEYPOT ANTISPAM -->
+
+          <div class="cr-contact-honeypot" aria-hidden="true">
+            <label for="contactWebsite">
+              No completar este campo
+            </label>
+
+            <input
+              type="text"
+              id="contactWebsite"
+              name="website"
+              tabindex="-1"
+              autocomplete="off">
+          </div>
+
+
+          <!-- TURNSTILE -->
+
+          <div class="cr-contact-captcha">
+            <div id="crContactCaptcha"></div>
+          </div>
+
+
+          <button
+            type="submit"
+            class="cr-contact-submit"
+            id="crContactSubmit"
+            disabled>
+            Enviar consulta
+          </button>
+
+
+          <p
+            class="cr-contact-status"
+            id="crContactStatus"
+            role="status"
+            aria-live="polite">
+            Estamos preparando el canal de recepción digital.
+          </p>
+
+        </form>
+
+      </section>
+
+    </section>
+
+  </main>
+
+
+  <!-- PIE DE PÁGINA -->
+
+  <footer class="cr-contact-footer">
+
+    <div class="cr-contact-footer-inner">
+
+      <div class="cr-contact-footer-brand">
+        CX-Review
+      </div>
+
+      <nav class="cr-contact-footer-links" aria-label="Enlaces legales">
+        <a href="/metodologia/">Metodología</a>
+        <a href="/areas/">Áreas de auditoría</a>
+        <a href="/privacidad/">Política de Privacidad</a>
+        <a href="/terminos/">Términos y Condiciones</a>
+      </nav>
+
+    </div>
+
+    <p class="cr-contact-copyright">
+      © <span id="crContactYear"></span> CX-Review. Todos los derechos reservados.
+    </p>
+
+  </footer>
+
+</div>
+
+
+<!-- NAVEGACIÓN MÓVIL Y PREPARACIÓN DEL FORMULARIO -->
+
+<script>
+(function () {
+  "use strict";
+
+  const menuButton = document.getElementById("crContactMenuButton");
+  const navigation = document.getElementById("crContactNavigation");
+  const form = document.getElementById("cxContactForm");
+  const submitButton = document.getElementById("crContactSubmit");
+  const statusMessage = document.getElementById("crContactStatus");
+  const yearElement = document.getElementById("crContactYear");
+
+  let turnstileToken = "";
+  let turnstileWidgetId = null;
+  let turnstileSiteKey = "";
+  let requestKey = null;
+  let pendingPayload = null;
+  let formReady = false;
+
+  yearElement.textContent = new Date().getFullYear();
+
+  if (menuButton && navigation) {
+    menuButton.addEventListener("click", function () {
+      const isOpen = navigation.classList.toggle("open");
+
+      menuButton.setAttribute("aria-expanded", String(isOpen));
+      menuButton.setAttribute(
+        "aria-label",
+        isOpen ? "Cerrar menú" : "Abrir menú"
+      );
+
+      menuButton.textContent = isOpen ? "×" : "☰";
+    });
+
+    navigation.querySelectorAll("a").forEach(function (link) {
+      link.addEventListener("click", function () {
+        navigation.classList.remove("open");
+        menuButton.setAttribute("aria-expanded", "false");
+        menuButton.setAttribute("aria-label", "Abrir menú");
+        menuButton.textContent = "☰";
+      });
+    });
+  }
+
+
+  function setStatus(message, state) {
+    statusMessage.textContent = message;
+    statusMessage.dataset.state = state || "";
+  }
+
+
+  function loadTurnstile(siteKey) {
+    if (!siteKey) {
+      throw new Error("No se recibió la configuración de seguridad.");
+    }
+
+    turnstileSiteKey = siteKey;
+
+    window.onCrContactTurnstileLoad = function () {
+      if (!window.turnstile) {
+        setStatus(
+          "No pudimos cargar la validación de seguridad. Recargá la página.",
+          "error"
+        );
+        return;
+      }
+
+      turnstileWidgetId = window.turnstile.render(
+        "#crContactCaptcha",
+        {
+          sitekey: turnstileSiteKey,
+          action: "contact",
+
+          callback: function (token) {
+            turnstileToken = token;
+            formReady = true;
+            submitButton.disabled = false;
+
+            setStatus(
+              "Validación de seguridad completada. Ya podés enviar tu consulta.",
+              ""
+            );
+          },
+
+          "expired-callback": function () {
+            turnstileToken = "";
+            submitButton.disabled = true;
+
+            setStatus(
+              "La validación venció. Volvé a completarla para continuar.",
+              "error"
+            );
+          },
+
+          "error-callback": function () {
+            turnstileToken = "";
+            submitButton.disabled = true;
+
+            setStatus(
+              "No pudimos validar la solicitud. Intentá nuevamente.",
+              "error"
+            );
+          },
+
+          theme: "light",
+          language: "es"
+        }
+      );
+    };
+
+    const script = document.createElement("script");
+    script.src =
+      "https://challenges.cloudflare.com/turnstile/v0/api.js?onload=onCrContactTurnstileLoad&render=explicit";
+    script.async = true;
+    script.defer = true;
+
+    script.onerror = function () {
+      setStatus(
+        "No pudimos cargar la validación de seguridad. Recargá la página.",
+        "error"
+      );
+    };
+
+    document.head.appendChild(script);
+  }
+
+
+  async function initializeForm() {
+    try {
+      const response = await fetch("/api/contact-config", {
+        method: "GET",
+        headers: {
+          "Accept": "application/json"
+        },
+        cache: "no-store"
+      });
+
+      if (!response.ok) {
+        throw new Error("La configuración todavía no está disponible.");
+      }
+
+      const configuration = await response.json();
+
+      if (!configuration.siteKey) {
+        throw new Error("Falta configurar la validación de seguridad.");
+      }
+
+      loadTurnstile(configuration.siteKey);
+
+    } catch (error) {
+      formReady = false;
+      submitButton.disabled = true;
+
+      setStatus(
+        "El canal de recepción digital se encuentra en preparación. Mientras tanto, podés escribirnos a info@cx-review.com.ar.",
+        "pending"
+      );
+    }
+  }
+
+
+  function getFormPayload() {
+    return {
+      fullName: form.elements.fullName.value.trim(),
+      email: form.elements.email.value.trim(),
+      company: form.elements.company.value.trim(),
+      phone: form.elements.phone.value.trim(),
+      reason: form.elements.reason.value,
+      message: form.elements.message.value.trim(),
+
+      privacyNoticeRead: form.elements.privacyNoticeRead.checked,
+      dataProcessingConsent: form.elements.dataProcessingConsent.checked,
+      marketingConsent: form.elements.marketingConsent.checked,
+
+      website: form.elements.website.value,
+      requestKey: requestKey
+    };
+  }
+
+
+  function resetCaptcha() {
+    turnstileToken = "";
+
+    if (window.turnstile && turnstileWidgetId !== null) {
+      window.turnstile.reset(turnstileWidgetId);
+    }
+
+    submitButton.disabled = true;
+  }
+
+
+  form.addEventListener("submit", async function (event) {
+    event.preventDefault();
+
+    if (!form.reportValidity()) {
+      return;
+    }
+
+    if (!formReady || !turnstileToken) {
+      setStatus(
+        "Completá la validación de seguridad antes de enviar.",
+        "error"
+      );
+      return;
+    }
+
+    if (!requestKey) {
+      requestKey = crypto.randomUUID();
+    }
+
+    if (!pendingPayload) {
+      pendingPayload = getFormPayload();
+    }
+
+    const payload = {
+      ...pendingPayload,
+      requestKey: requestKey,
+      turnstileToken: turnstileToken
+    };
+
+    submitButton.disabled = true;
+    submitButton.textContent = "Enviando...";
+
+    setStatus("Estamos procesando tu consulta.", "pending");
+
+    try {
+      const response = await fetch("/api/contact", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "Accept": "application/json"
+        },
+        body: JSON.stringify(payload)
+      });
+
+      const result = await response.json().catch(function () {
+        return {};
+      });
+
+      if (response.ok && result.ok === true) {
+        form.reset();
+
+        requestKey = null;
+        pendingPayload = null;
+
+        resetCaptcha();
+
+        setStatus(
+          result.message ||
+            "Recibimos tu consulta. El equipo de CX-Review se pondrá en contacto.",
+          "success"
+        );
+
+      } else if (result.retryable === true) {
+        resetCaptcha();
+
+        setStatus(
+          result.message ||
+            "La consulta quedó pendiente de procesamiento. Podés volver a intentar el envío; no necesitás completar nuevamente los datos.",
+          "pending"
+        );
+
+      } else {
+        requestKey = null;
+        pendingPayload = null;
+
+        resetCaptcha();
+
+        setStatus(
+          result.message ||
+            "No pudimos completar el envío. Revisá los datos e intentá nuevamente.",
+          "error"
+        );
+      }
+
+    } catch (error) {
+      resetCaptcha();
+
+      setStatus(
+        "No pudimos comunicarnos con el servidor. Tus datos permanecen en este formulario. Podés volver a intentar el envío.",
+        "error"
+      );
+    }
+
+    submitButton.textContent = "Enviar consulta";
+  });
+
+
+  initializeForm();
+
+})();
+</script>
+
+</body>
+</html>
