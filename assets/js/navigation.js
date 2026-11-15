@@ -1,3 +1,4 @@
+
 (() => {
   "use strict";
 
@@ -12,9 +13,30 @@
     return path.replace(/\/+$/, "") || "/";
   };
 
+
+  // Redirige los enlaces heredados de la sección Nosotros
+  // hacia la nueva página institucional.
+  links.forEach((link) => {
+    try {
+      const url = new URL(link.href, window.location.origin);
+
+      if (
+        url.hash.toLowerCase() === "#nosotros" &&
+        normalizePath(url.pathname) === "/"
+      ) {
+        link.setAttribute("href", "/nosotros/");
+      }
+
+    } catch (_) {
+      // No modifica enlaces que no puedan interpretarse.
+    }
+  });
+
+
   const currentPath = normalizePath(window.location.pathname);
 
-  // Identifica si existe un enlace correspondiente a la página actual.
+
+  // Identifica el enlace correspondiente a la página actual.
   const currentPageLink = links.find((link) => {
     const url = new URL(link.href, window.location.origin);
 
@@ -23,6 +45,7 @@
       !url.hash
     );
   });
+
 
   // Identifica las secciones vinculadas al menú.
   const sectionLinks = links
@@ -50,7 +73,6 @@
     .filter(Boolean);
 
 
-  // Aplica el estado activo al enlace correspondiente.
   const setActiveLink = (activeLink, currentType) => {
     links.forEach((link) => {
       if (link === currentPageLink) return;
@@ -69,21 +91,21 @@
   };
 
 
-  // Conserva resaltada la página actual en páginas internas.
   if (currentPageLink) {
     currentPageLink.classList.add("is-active");
     currentPageLink.setAttribute("aria-current", "page");
   }
 
 
-  // Detecta qué sección está atravesando la línea de referencia.
   let updateScheduled = false;
 
   const updateNavigation = () => {
     updateScheduled = false;
 
-    // Refuerza el fondo del encabezado cuando comienza el scroll.
-    header.classList.toggle("is-scrolled", window.scrollY > 12);
+    header.classList.toggle(
+      "is-scrolled",
+      window.scrollY > 12
+    );
 
     if (!sectionLinks.length) return;
 
@@ -103,7 +125,6 @@
       }
     }
 
-    // Si estamos entre secciones, conserva la última sección recorrida.
     if (!activeItem) {
       const passedSections = sectionLinks.filter(({ section }) => {
         return section.getBoundingClientRect().top <= triggerPosition;
@@ -121,7 +142,6 @@
   };
 
 
-  // Agrupa las actualizaciones para evitar cálculos innecesarios.
   const scheduleUpdate = () => {
     if (updateScheduled) return;
 
@@ -135,7 +155,6 @@
   });
 
   window.addEventListener("resize", scheduleUpdate);
-
   window.addEventListener("load", scheduleUpdate);
 
   scheduleUpdate();
