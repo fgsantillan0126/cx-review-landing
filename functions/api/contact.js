@@ -453,6 +453,8 @@ async function cleanupExpiredJobs(db) {
          SELECT submission_id
          FROM ${JOB_TABLE}
          WHERE expires_at <= ?
+           AND notion_status = 'succeeded'
+           AND email_status = 'succeeded'
            AND (
              notion_lease_until IS NULL
              OR notion_lease_until <= ?
@@ -1183,7 +1185,7 @@ async function processContactSubmission(
   }
 
   // Limpieza de metadatos técnicos vencidos.
-  // No modifica Notion ni Resend.
+  // Solo elimina trabajos completados en ambas integraciones.
   await cleanupExpiredJobs(env.CONTACT_DB);
 
   const fingerprint = await createPayloadFingerprint(
