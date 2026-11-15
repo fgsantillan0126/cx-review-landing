@@ -24,6 +24,7 @@ const JOB_TABLE = "contact_submission_jobs";
 const MAX_BODY_BYTES = 16000;
 const LEASE_SECONDS = 45;
 const JOB_RETENTION_DAYS = 30;
+const CLEANUP_BATCH_SIZE = 100;
 
 
 class PublicError extends Error {
@@ -365,6 +366,10 @@ async function fetchJson(url, options, provider, timeoutMs = 12000) {
 }
 
 
+/* =====================================================
+   TURNSTILE
+===================================================== */
+
 async function verifyTurnstile(token, env) {
   const secret = String(
     env.TURNSTILE_SECRET_KEY || ""
@@ -406,6 +411,10 @@ async function verifyTurnstile(token, env) {
 }
 
 
+/* =====================================================
+   D1 — HUELLA DEL CONTENIDO
+===================================================== */
+
 async function createPayloadFingerprint(payload) {
   const canonicalPayload = JSON.stringify({
     fullName: payload.fullName,
@@ -430,6 +439,65 @@ async function createPayloadFingerprint(payload) {
 }
 
 
+/* =====================================================
+   D1 — LIMPIEZA DEL LEDGER TÉCNICO
+===================================================== */
+
+async function cleanupExpiredJobs(db) {
+  const now = new Date().toISOString();
+
+  try {
+    const result = await db.prepare(
+      `DELETE FROM ${JOB_TABLE}
+       WHERE submission_id IN (
+         SELECT submission_id
+         FROM ${JOB_TABLE}
+         WHERE expires_at <= ?
+           AND (
+             notion_lease_until IS NULL
+             OR notion_lease_until <= ?
+           )
+           AND (
+             email_lease_until IS NULL
+             OR email_lease_until <= ?
+           )
+         ORDER BY expires_at ASC
+         LIMIT ?
+       )`
+    )
+      .bind(
+        now,
+        now,
+        now,
+        CLEANUP_BATCH_SIZE
+      )
+      .run();
+
+    const deleted = Number(
+      result?.meta?.changes || 0
+    );
+
+    if (deleted > 0) {
+      console.info(JSON.stringify({
+        event: "contact_jobs_expired_cleanup",
+        deleted
+      }));
+    }
+
+  } catch (error) {
+    // La limpieza es auxiliar. Su fallo no debe impedir
+    // que una consulta válida pueda ser procesada.
+    console.error(JSON.stringify({
+      event: "contact_jobs_cleanup_failed"
+    }));
+  }
+}
+
+
+/* =====================================================
+   D1 — CREACIÓN Y LECTURA DE TRABAJOS
+===================================================== */
+
 async function readJobByRequestKey(db, requestKey) {
   return db.prepare(
     `SELECT *
@@ -442,11 +510,31 @@ async function readJobByRequestKey(db, requestKey) {
 }
 
 
-async function createOrLoadJob(db, requestKey, payloadFingerprint) {
-  let job = await readJobByRequestKey(db, requestKey);
+async function readJobById(db, submissionId) {
+  return db.prepare(
+    `SELECT *
+     FROM ${JOB_TABLE}
+     WHERE submission_id = ?
+     LIMIT 1`
+  )
+    .bind(submissionId)
+    .first();
+}
+
+
+async function createOrLoadJob(
+  db,
+  requestKey,
+  payloadFingerprint
+) {
+  let job = await readJobByRequestKey(
+    db,
+    requestKey
+  );
 
   if (!job) {
     const now = new Date();
+
     const createdAt = now.toISOString();
 
     const expiresAt = new Date(
@@ -478,7 +566,12 @@ async function createOrLoadJob(db, requestKey, payloadFingerprint) {
       )
       .run();
 
-    job = await readJobByRequestKey(db, requestKey);
+    // Si otra solicitud concurrente insertó el mismo requestKey,
+    // se recupera ese mismo trabajo.
+    job = await readJobByRequestKey(
+      db,
+      requestKey
+    );
   }
 
   if (!job) {
@@ -498,17 +591,9 @@ async function createOrLoadJob(db, requestKey, payloadFingerprint) {
 }
 
 
-async function readJobById(db, submissionId) {
-  return db.prepare(
-    `SELECT *
-     FROM ${JOB_TABLE}
-     WHERE submission_id = ?
-     LIMIT 1`
-  )
-    .bind(submissionId)
-    .first();
-}
-
+/* =====================================================
+   D1 — BLOQUEOS Y ESTADOS POR OPERACIÓN
+===================================================== */
 
 const BRANCH_COLUMNS = {
   notion: {
@@ -535,6 +620,7 @@ async function claimBranch(db, submissionId, branch) {
   const columns = BRANCH_COLUMNS[branch];
 
   const now = new Date();
+
   const nowIso = now.toISOString();
 
   const leaseUntil = new Date(
@@ -563,7 +649,9 @@ async function claimBranch(db, submissionId, branch) {
     )
     .run();
 
-  const changes = Number(result?.meta?.changes || 0);
+  const changes = Number(
+    result?.meta?.changes || 0
+  );
 
   if (changes > 0) {
     return "claimed";
@@ -582,8 +670,14 @@ async function claimBranch(db, submissionId, branch) {
 }
 
 
-async function completeBranch(db, submissionId, branch, resultId) {
+async function completeBranch(
+  db,
+  submissionId,
+  branch,
+  resultId
+) {
   const columns = BRANCH_COLUMNS[branch];
+
   const now = new Date().toISOString();
 
   await db.prepare(
@@ -606,8 +700,14 @@ async function completeBranch(db, submissionId, branch, resultId) {
 }
 
 
-async function recordBranchFailure(db, submissionId, branch, errorCode) {
+async function recordBranchFailure(
+  db,
+  submissionId,
+  branch,
+  errorCode
+) {
   const columns = BRANCH_COLUMNS[branch];
+
   const now = new Date().toISOString();
 
   await db.prepare(
@@ -621,7 +721,10 @@ async function recordBranchFailure(db, submissionId, branch, errorCode) {
      WHERE submission_id = ?`
   )
     .bind(
-      normalizeErrorCode(errorCode, `${branch}_error`),
+      normalizeErrorCode(
+        errorCode,
+        `${branch}_error`
+      ),
       now,
       submissionId
     )
@@ -680,8 +783,8 @@ async function processBranch(
         errorCode
       );
     } catch {
-      // El bloqueo vence automáticamente.
-      // El próximo intento comprobará primero el estado del proveedor.
+      // Si D1 también está temporalmente indisponible,
+      // el bloqueo vence automáticamente.
     }
 
     console.error(JSON.stringify({
@@ -695,6 +798,10 @@ async function processBranch(
   }
 }
 
+
+/* =====================================================
+   NOTION — UTILIDADES Y BÚSQUEDA
+===================================================== */
 
 function richTextChunks(value) {
   if (!value) {
@@ -716,7 +823,10 @@ function richTextChunks(value) {
 }
 
 
-async function findExistingNotionPage(submissionId, env) {
+async function findExistingNotionPage(
+  submissionId,
+  env
+) {
   const apiKey = String(
     env.NOTION_API_KEY || ""
   ).trim();
@@ -749,13 +859,20 @@ async function findExistingNotionPage(submissionId, env) {
     "notion"
   );
 
-  if (Array.isArray(result.results) && result.results.length > 0) {
+  if (
+    Array.isArray(result.results) &&
+    result.results.length > 0
+  ) {
     return result.results[0].id;
   }
 
   return null;
 }
 
+
+/* =====================================================
+   NOTION — CREACIÓN DE CONSULTA
+===================================================== */
 
 async function createNotionPage(
   submissionId,
@@ -807,7 +924,9 @@ async function createNotionPage(
     },
 
     "Versión del paquete legal aceptado": {
-      rich_text: richTextChunks(LEGAL_PACKAGE_VERSION)
+      rich_text: richTextChunks(
+        LEGAL_PACKAGE_VERSION
+      )
     },
 
     "ID de envío": {
@@ -863,6 +982,8 @@ async function ensureNotionContact(
   payload,
   env
 ) {
+  // Antes de crear, buscar si el registro ya existe.
+  // Esto evita duplicados ante respuestas perdidas.
   const existingPageId = await findExistingNotionPage(
     submissionId,
     env
@@ -880,6 +1001,10 @@ async function ensureNotionContact(
   );
 }
 
+
+/* =====================================================
+   RESEND — NOTIFICACIÓN
+===================================================== */
 
 function escapeHtml(value) {
   return String(value)
@@ -927,6 +1052,7 @@ function emailHtml(payload, submissionId) {
       <head>
         <meta charset="utf-8">
       </head>
+
       <body style="margin:0;padding:30px;background:#f5f7fa;font-family:Arial,sans-serif;color:#26364a;">
         <div style="max-width:720px;margin:0 auto;padding:30px;background:#ffffff;border:1px solid #e4e9ef;">
 
@@ -1015,7 +1141,17 @@ async function sendNotificationEmail(
         reply_to: payload.email,
         subject: "Nueva consulta desde el sitio web | CX-Review",
         html: emailHtml(payload, submissionId),
-        text: emailText(payload, submissionId)
+        text: emailText(payload, submissionId),
+        tags: [
+          {
+            name: "source",
+            value: "contact-form"
+          },
+          {
+            name: "environment",
+            value: "production"
+          }
+        ]
       })
     },
     "resend"
@@ -1031,6 +1167,10 @@ async function sendNotificationEmail(
 }
 
 
+/* =====================================================
+   PROCESAMIENTO PRINCIPAL
+===================================================== */
+
 async function processContactSubmission(
   requestKey,
   payload,
@@ -1042,7 +1182,13 @@ async function processContactSubmission(
     );
   }
 
-  const fingerprint = await createPayloadFingerprint(payload);
+  // Limpieza de metadatos técnicos vencidos.
+  // No modifica Notion ni Resend.
+  await cleanupExpiredJobs(env.CONTACT_DB);
+
+  const fingerprint = await createPayloadFingerprint(
+    payload
+  );
 
   const job = await createOrLoadJob(
     env.CONTACT_DB,
@@ -1052,10 +1198,10 @@ async function processContactSubmission(
 
   const submissionId = job.submission_id;
 
-  // Se utiliza la fecha inicial de D1 para que los reintentos
-  // no alteren la fecha original de aceptación de las declaraciones.
+  // La fecha original se conserva al reintentar.
   const acceptedAt = job.created_at;
 
+  // Cada proveedor se procesa de forma independiente.
   await Promise.all([
     processBranch(
       env.CONTACT_DB,
@@ -1102,20 +1248,32 @@ async function processContactSubmission(
 }
 
 
+/* =====================================================
+   ENDPOINT PÚBLICO
+===================================================== */
+
 export async function onRequest(context) {
   const { request, env } = context;
 
   if (request.method !== "POST") {
     return jsonResponse(
-      { ok: false, message: "Método no permitido." },
+      {
+        ok: false,
+        message: "Método no permitido."
+      },
       405,
-      { "Allow": "POST" }
+      {
+        "Allow": "POST"
+      }
     );
   }
 
   if (!isAllowedRequest(request, env, true)) {
     return jsonResponse(
-      { ok: false, message: "Solicitud no permitida." },
+      {
+        ok: false,
+        message: "Solicitud no permitida."
+      },
       403
     );
   }
@@ -1126,7 +1284,10 @@ export async function onRequest(context) {
 
   if (!contentType.includes("application/json")) {
     return jsonResponse(
-      { ok: false, message: "Formato de solicitud no válido." },
+      {
+        ok: false,
+        message: "Formato de solicitud no válido."
+      },
       415
     );
   }
@@ -1137,7 +1298,10 @@ export async function onRequest(context) {
 
   if (declaredLength > MAX_BODY_BYTES) {
     return jsonResponse(
-      { ok: false, message: "La solicitud supera el tamaño permitido." },
+      {
+        ok: false,
+        message: "La solicitud supera el tamaño permitido."
+      },
       413
     );
   }
@@ -1154,7 +1318,10 @@ export async function onRequest(context) {
 
     if (actualLength > MAX_BODY_BYTES) {
       return jsonResponse(
-        { ok: false, message: "La solicitud supera el tamaño permitido." },
+        {
+          ok: false,
+          message: "La solicitud supera el tamaño permitido."
+        },
         413
       );
     }
@@ -1163,7 +1330,10 @@ export async function onRequest(context) {
 
   } catch {
     return jsonResponse(
-      { ok: false, message: "La solicitud no contiene datos válidos." },
+      {
+        ok: false,
+        message: "La solicitud no contiene datos válidos."
+      },
       400
     );
   }
@@ -1174,12 +1344,15 @@ export async function onRequest(context) {
     Array.isArray(body)
   ) {
     return jsonResponse(
-      { ok: false, message: "La solicitud no tiene un formato válido." },
+      {
+        ok: false,
+        message: "La solicitud no tiene un formato válido."
+      },
       400
     );
   }
 
-  // Honeypot: responde como éxito sin procesar la consulta.
+  // Honeypot: respuesta aparente de éxito sin procesar.
   if (
     typeof body.website === "string" &&
     body.website.trim()
@@ -1208,7 +1381,10 @@ export async function onRequest(context) {
       body.turnstileToken,
       "validación de seguridad",
       2048,
-      { required: true, minLength: 10 }
+      {
+        required: true,
+        minLength: 10
+      }
     );
 
     let challengeValid;
@@ -1218,6 +1394,7 @@ export async function onRequest(context) {
         turnstileToken,
         env
       );
+
     } catch (error) {
       console.error(JSON.stringify({
         event: "contact_turnstile_unavailable",
@@ -1263,7 +1440,9 @@ export async function onRequest(context) {
         message: "No pudimos confirmar el procesamiento completo. Tus datos permanecen en el formulario. Volvé a intentar en unos instantes."
       },
       202,
-      { "Retry-After": "5" }
+      {
+        "Retry-After": "5"
+      }
     );
 
   } catch (error) {
