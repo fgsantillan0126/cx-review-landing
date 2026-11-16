@@ -1,0 +1,8 @@
+main > section[aria-label] { padding: 2rem max(1.25rem, calc((100vw - 66rem) / 2)); }
+#store-search { display: block; max-width: 100%; margin: .4rem 0 1rem; padding: .55rem .75rem; }
+.ranking-results { padding-inline-start: 2rem; }
+.ranking-results > li { padding: 1.25rem; margin-bottom: 1rem; border: 1px solid #dbe4ef; border-radius: .75rem; }
+.ranking-results h2 { margin: 0 0 .35rem; font-size: 1.35rem; }
+.ranking-results details { margin-block: .65rem; }
+.ranking-results summary { cursor: pointer; }
+.ranking-results a { overflow-wrap: anywhere; }
