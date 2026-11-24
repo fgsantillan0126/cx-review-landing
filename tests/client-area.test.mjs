@@ -1,0 +1,18 @@
+import assert from 'node:assert/strict';import fs from 'node:fs';import {DatabaseSync} from 'node:sqlite';import {onRequest,digest} from '../functions/api/client-area.js';
+const sql=new DatabaseSync(':memory:');sql.exec(fs.readFileSync(new URL('../migrations/client-area-001.sql',import.meta.url),'utf8'));
+const db={prepare(q){return {args:[],bind(...args){return {...this,args}},async first(){return sql.prepare(q).get(...this.args)||null},async all(){return {results:sql.prepare(q).all(...this.args)}},async run(){return {meta:sql.prepare(q).run(...this.args)}}}},async batch(ss){sql.exec('BEGIN');try{const out=[];for(const s of ss)out.push(await s.run());sql.exec('COMMIT');return out}catch(e){sql.exec('ROLLBACK');throw e}}};
+const env={CXR_CLIENT_DB:db,CX_CLIENT_PUBLISH_TOKEN:'p'.repeat(40),CX_CLIENT_RELEASE_TOKEN:'r'.repeat(40)};
+const api=(body,key='',query='')=>onRequest({env,request:new Request('https://cx-review.com.ar/api/client-area'+query,{method:body?'POST':'GET',headers:{authorization:'Bearer '+key,'content-type':'application/json'},...(body?{body:JSON.stringify(body)}:{})})});
+const report={reference:'QA-A',storeName:'Synthetic',scope:80,score:50,revision:1,areas:['compliance','cx','commercial','technology'].map(key=>({key,score:50})),points:Array.from({length:80},(_,i)=>({id:'ID'+i,number:i+1,area:['compliance','cx','commercial','technology'][Math.floor(i/20)],level:3,title:'Synthetic',severity:'Alto',evaluation:'Exact evaluation',action:'Exact recommendation',observation:'Synthetic only'}))};
+const prepare={action:'prepare',orderId:'order-a',actor:'supervisor',report,executiveHtml:'<!doctype html>'+Array.from({length:8},()=>'<section data-page="1"></section>').join('')};
+assert.equal((await api()).status,401);assert.equal((await api(prepare,env.CX_CLIENT_RELEASE_TOKEN)).status,403);assert.equal((await api(prepare,env.CX_CLIENT_PUBLISH_TOKEN)).status,200);
+assert.equal((await api(null,'a'.repeat(64))).status,401);
+const grant={action:'release',orderId:'order-a',actor:'commercial',reference:'QA-A',clientId:'client-a',tokenHash:await digest('a'.repeat(64))};
+assert.equal((await api(grant,env.CX_CLIENT_PUBLISH_TOKEN)).status,403);assert.equal((await api(grant,env.CX_CLIENT_RELEASE_TOKEN)).status,200);
+let a=await (await api(null,'a'.repeat(64))).json();assert.equal(a.reports.length,1);assert.equal(a.reports[0].points.length,80);assert.equal(a.reports[0].points[0].evaluation,'Exact evaluation');
+assert.equal((await api({...grant,clientId:'client-b',tokenHash:await digest('b'.repeat(64))},env.CX_CLIENT_RELEASE_TOKEN)).status,409);assert.equal((await api(null,'b'.repeat(64))).status,401);
+assert.equal((await api({...prepare,report:{...report,revision:2}},env.CX_CLIENT_PUBLISH_TOKEN)).status,409);
+assert.equal((await api(null,'a'.repeat(64),'?document=QA-A')).status,200);assert.equal((await api(null,'a'.repeat(64),'?document=OTHER')).status,404);
+assert.equal((await api({...prepare,orderId:'invalid',report:{...report,points:report.points.slice(1)}},env.CX_CLIENT_PUBLISH_TOKEN)).status,400);
+await api({action:'revoke',orderId:'order-a',actor:'commercial',clientId:'client-a',tokenHash:grant.tokenHash},env.CX_CLIENT_RELEASE_TOKEN);assert.equal((await api(null,'a'.repeat(64))).status,401);
+console.log('PASS client workspace: separate publish/release capabilities, complete scope, no access before release, client isolation, source freeze, private document, invalid scope and revocation.');
