@@ -1,10 +1,16 @@
-import assert from 'node:assert/strict';import fs from 'node:fs';import {DatabaseSync} from 'node:sqlite';import {onRequest,digest} from '../functions/api/client-area.js';
+import assert from 'node:assert/strict';import fs from 'node:fs';import {DatabaseSync} from 'node:sqlite';import {onRequest,digest,hasEightExecutivePages} from '../functions/api/client-area.js';
 const sql=new DatabaseSync(':memory:');sql.exec(fs.readFileSync(new URL('../migrations/client-area-001.sql',import.meta.url),'utf8'));
 const db={prepare(q){return {args:[],bind(...args){return {...this,args}},async first(){return sql.prepare(q).get(...this.args)||null},async all(){return {results:sql.prepare(q).all(...this.args)}},async run(){return {meta:sql.prepare(q).run(...this.args)}}}},async batch(ss){sql.exec('BEGIN');try{const out=[];for(const s of ss)out.push(await s.run());sql.exec('COMMIT');return out}catch(e){sql.exec('ROLLBACK');throw e}}};
 const env={CXR_CLIENT_DB:db,CX_CLIENT_PUBLISH_TOKEN:'p'.repeat(40),CX_CLIENT_RELEASE_TOKEN:'r'.repeat(40)};
 const api=(body,key='',query='')=>onRequest({env,request:new Request('https://cx-review.com.ar/api/client-area'+query,{method:body?'POST':'GET',headers:{authorization:'Bearer '+key,'content-type':'application/json'},...(body?{body:JSON.stringify(body)}:{})})});
 const report={reference:'QA-A',storeName:'Synthetic',scope:80,score:50,revision:1,areas:['compliance','cx','commercial','technology'].map(key=>({key,score:50})),points:Array.from({length:80},(_,i)=>({id:'ID'+i,number:i+1,area:['compliance','cx','commercial','technology'][Math.floor(i/20)],level:3,title:'Synthetic',severity:'Alto',evaluation:'Exact evaluation',action:'Exact recommendation',observation:'Synthetic only'}))};
-const prepare={action:'prepare',orderId:'order-a',actor:'supervisor',report,executiveHtml:'<!doctype html>'+Array.from({length:8},()=>'<section data-page="1"></section>').join('')};
+const html='<!doctype html><html><head><style>.page[data-page="8"]{break-after:auto}</style></head><body>'+Array.from({length:8},(_,i)=>'<section class="page" data-page="'+(i+1)+'"></section>').join('')+'</body></html>';
+assert.equal((html.match(/data-page="/g)||[]).length,9,'The real print stylesheet also contains a page marker.');
+assert.equal(hasEightExecutivePages(html),true);
+assert.equal(hasEightExecutivePages(html.replace('</body>','<section data-page="9"></section></body>')),false);
+assert.equal(hasEightExecutivePages(html.replace('data-page="7"','data-page="6"')),false);
+assert.equal(hasEightExecutivePages(html.replace('</body>','<!-- <section data-page="9"></section> --></body>')),true);
+const prepare={action:'prepare',orderId:'order-a',actor:'supervisor',report,executiveHtml:html};
 assert.equal((await api()).status,401);assert.equal((await api(prepare,env.CX_CLIENT_RELEASE_TOKEN)).status,403);assert.equal((await api(prepare,env.CX_CLIENT_PUBLISH_TOKEN)).status,200);
 assert.equal((await api(null,'a'.repeat(64))).status,401);
 const grant={action:'release',orderId:'order-a',actor:'commercial',reference:'QA-A',clientId:'client-a',tokenHash:await digest('a'.repeat(64))};

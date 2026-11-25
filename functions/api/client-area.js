@@ -3,6 +3,12 @@ const reply=(data,status=200)=>Response.json(data,{status,headers});
 export const digest=async value=>Array.from(new Uint8Array(await crypto.subtle.digest('SHA-256',new TextEncoder().encode(value))),b=>b.toString(16).padStart(2,'0')).join('');
 const text=(v,n)=>typeof v==='string'&&v.length>0&&v.length<=n?v:null;
 const areas=['compliance','cx','commercial','technology','operations'];
+export function hasEightExecutivePages(html){
+ if(typeof html!=='string'||!/^<!doctype html>/i.test(html))return false;
+ const markup=html.replace(/<!--[\s\S]*?-->|<style\b[^>]*>[\s\S]*?<\/style>|<script\b[^>]*>[\s\S]*?<\/script>/gi,'');
+ const pages=[...markup.matchAll(/<section\b[^>]*\bdata-page=(["'])(\d+)\1[^>]*>/gi)].map(m=>Number(m[2]));
+ return pages.length===8&&pages.every((page,index)=>page===index+1);
+}
 function normalizeReport(r){
  if(!r||!text(r.reference,80)||!text(r.storeName,200)||![80,100].includes(r.scope)||!Number.isFinite(r.score)||r.score<0||r.score>100||!Number.isInteger(r.revision)||r.revision<1||!Array.isArray(r.points)||r.points.length!==r.scope||!Array.isArray(r.areas)||r.areas.length!==(r.scope===80?4:5))return null;
  const seen=new Set(),areaSeen=new Set(),points=[];
@@ -37,7 +43,7 @@ export async function onRequest({request,env}){
  const orderId=text(body.orderId,80),actor=text(body.actor,100);if(!orderId||!actor)return reply({error:'Falta la referencia de la entrega.'},400);
  if(body.action==='prepare'&&publish){
   const report=normalizeReport(body.report);if(!report)return reply({error:'El informe no tiene un alcance válido y completo.'},400);
-  const html=text(body.executiveHtml,300000);if(!html||!html.startsWith('<!doctype html>')||(html.match(/data-page="/g)||[]).length!==8)return reply({error:'El informe ejecutivo debe contener ocho páginas.'},400);
+  const html=text(body.executiveHtml,300000);if(!hasEightExecutivePages(html))return reply({error:'El informe ejecutivo debe contener ocho páginas.'},400);
   const old=await db.prepare('SELECT reference,revision,content_json,released_at FROM client_reports WHERE order_id=?').bind(orderId).first();
   const content=JSON.stringify(report);
   if(old?.content_json===content)return reply({ok:true,duplicate:true});
