@@ -2,7 +2,11 @@ import {plans,catalogVersion} from '../_lib/launch-catalog.js';
 import {digest} from './client-area.js';
 const reply=(data,status=200)=>Response.json(data,{status,headers:{'cache-control':'private, no-store','x-robots-tag':'noindex, nofollow','referrer-policy':'no-referrer'}});
 const val=(v,n)=>typeof v==='string'&&v.trim().length<=n?v.trim():'';
-const configured=env=>env.CX_CONTRACTING_ENABLED==='1'&&!!env.CXR_COMMERCE_DB&&!!env.MP_ACCESS_TOKEN&&!!env.MP_WEBHOOK_SECRET&&!!env.TURNSTILE_SECRET_KEY&&!!env.TURNSTILE_SITE_KEY&&!!env.CX_WEB_COMMERCIAL_TOKEN;
+const testMode=env=>env.CXR_WORKSPACE_MODE!=='production';
+const configured=env=>env.CX_CONTRACTING_ENABLED==='1'&&(!testMode(env)||Date.parse(env.CX_CONTRACTING_TEST_UNTIL||'')>Date.now())&&!!env.CXR_COMMERCE_DB&&!!env.MP_ACCESS_TOKEN&&!!env.MP_WEBHOOK_SECRET&&!!env.TURNSTILE_SECRET_KEY&&!!env.TURNSTILE_SITE_KEY&&!!env.CX_WEB_COMMERCIAL_TOKEN;
+async function testSeller(env){
+ try{const response=await fetch('https://api.mercadopago.com/users/me',{headers:{authorization:'Bearer '+env.MP_ACCESS_TOKEN},signal:AbortSignal.timeout(8000)});const seller=await response.json();return response.ok&&Array.isArray(seller.tags)&&seller.tags.includes('test_user');}catch{return false;}
+}
 export function normalizeRequest(body){
  const fields={storeName:200,storeUrl:1000,requesterName:160,requesterEmail:160,billingName:200,taxId:30,taxStatus:40,billingAddress:300,billingEmail:160},out={};
  for(const [key,n] of Object.entries(fields)){out[key]=val(body[key],n);if(!out[key])return null;}
@@ -22,7 +26,7 @@ export async function onRequest({request,env}){
    const rows=await env.CXR_COMMERCE_DB.prepare("SELECT id,plan_id,plan_snapshot,request_json,initial_minor,total_minor,payment_id,paid_at,gross_minor,net_minor,status,created_at FROM web_contract_requests WHERE status IN('paid_review','approved','correction') ORDER BY paid_at DESC LIMIT 100").all();return reply({requests:rows.results});
   }
   if(u.searchParams.get('status')==='1'){if(!/^[a-f0-9]{64}$/.test(service)||!env.CXR_COMMERCE_DB)return reply({error:'Solicitud no disponible.'},404);const row=await env.CXR_COMMERCE_DB.prepare('SELECT id,status,plan_id,initial_minor,total_minor,paid_at FROM web_contract_requests WHERE access_hash=?').bind(await digest(service)).first();return row?reply({request:row}):reply({error:'Solicitud no disponible.'},404);}
-  return reply({version:catalogVersion,plans,checkoutEnabled:configured(env),turnstileSiteKey:env.TURNSTILE_SITE_KEY||''});
+  return reply({version:catalogVersion,plans,checkoutEnabled:configured(env),testMode:testMode(env),turnstileSiteKey:env.TURNSTILE_SITE_KEY||''});
  }
  if(request.method!=='POST')return reply({error:'Método no permitido.'},405);
  const body=await readBody(request);if(!body)return reply({error:'Datos inválidos.'},400);
@@ -36,6 +40,7 @@ export async function onRequest({request,env}){
  }
  if(request.headers.get('origin')!==u.origin)return reply({error:'Origen no permitido.'},403);
  if(!configured(env))return reply({error:'La contratación online todavía está en preparación. No se realizó ningún cobro.'},503);
+ if(testMode(env)&&!await testSeller(env))return reply({error:'Para esta prueba se requieren credenciales de un vendedor de prueba de Mercado Pago. No se inició ningún cobro.'},503);
  const plan=plans.find(p=>p.id===body.plan),data=normalizeRequest(body),id=val(body.id,40),access=val(body.access,64);
  if(!plan||!data||!/^[-a-f0-9]{36}$/i.test(id)||!/^[a-f0-9]{64}$/.test(access))return reply({error:'Revisá los datos del sitio, solicitante y facturación.'},400);
  if(!await turnstile(env,val(body.turnstileToken,2048),u.hostname))return reply({error:'No pudimos validar la solicitud. Intentá nuevamente.'},403);
