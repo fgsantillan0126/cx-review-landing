@@ -1,7 +1,7 @@
 export async function onRequestGet({request,env}) {
   try {
-    // The public site always reads the operational projection, never development fixtures.
-    const response = await fetch('https://cx-operational-relay.fgsantillan0126.workers.dev/ranking/v1', {signal: AbortSignal.timeout(8000)});
+    // The website follows the existing workspace. Only explicitly published entries leave the relay.
+    const response = await fetch((env.CXR_WORKSPACE_MODE==='production'?'https://cx-operational-relay.fgsantillan0126.workers.dev':'https://cx-manager-order-relay.fgsantillan0126.workers.dev')+'/ranking/v1', {signal: AbortSignal.timeout(8000)});
     if (!response.ok) throw new Error('Ranking unavailable');
     const data=await response.json();if(!Array.isArray(data.stores))throw new Error('Invalid ranking');
     const keys=['compliance','cx','technology','commercial'];
