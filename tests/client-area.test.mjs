@@ -16,3 +16,5 @@ assert.equal((await api(null,'a'.repeat(64),'?document=QA-A')).status,200);asser
 assert.equal((await api({...prepare,orderId:'invalid',report:{...report,points:report.points.slice(1)}},env.CX_CLIENT_PUBLISH_TOKEN)).status,400);
 await api({action:'revoke',orderId:'order-a',actor:'commercial',clientId:'client-a',tokenHash:grant.tokenHash},env.CX_CLIENT_RELEASE_TOKEN);assert.equal((await api(null,'a'.repeat(64))).status,401);
 console.log('PASS client workspace: separate publish/release capabilities, complete scope, no access before release, client isolation, source freeze, private document, invalid scope and revocation.');
+
+const priorRelease=env.CX_CLIENT_RELEASE_TOKEN;env.CX_CLIENT_RELEASE_TOKEN=env.CX_CLIENT_PUBLISH_TOKEN;assert.equal((await api(prepare,env.CX_CLIENT_PUBLISH_TOKEN)).status,503);env.CX_CLIENT_RELEASE_TOKEN=priorRelease;

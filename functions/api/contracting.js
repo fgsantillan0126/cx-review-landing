@@ -28,7 +28,11 @@ export async function onRequest({request,env}){
  const body=await readBody(request);if(!body)return reply({error:'Datos inválidos.'},400);
  if(body.action==='review'){
   if(!commercial)return reply({error:'Acceso no autorizado.'},401);if(!['approve','correction'].includes(body.decision)||!val(body.id,80)||!val(body.actor,100))return reply({error:'Revisión inválida.'},400);
-  const result=await env.CXR_COMMERCE_DB.prepare("UPDATE web_contract_requests SET status=?,reviewed_by=?,reviewed_at=CURRENT_TIMESTAMP,review_note=? WHERE id=? AND status='paid_review' AND payment_id IS NOT NULL").bind(body.decision==='approve'?'approved':'correction',body.actor,val(body.note,2000),body.id).run();return result.meta.changes?reply({ok:true}):reply({error:'La solicitud cambió o aún no tiene pago verificado.'},409);
+  if(!env.CXR_COMMERCE_DB)return reply({error:'Servicio no configurado.'},503);
+  const current=await env.CXR_COMMERCE_DB.prepare('SELECT status,reviewed_by,review_note,payment_id FROM web_contract_requests WHERE id=?').bind(body.id).first();
+  const target=body.decision==='approve'?'approved':'correction',note=val(body.note,2000);
+  if(current?.payment_id&&current.status===target&&current.reviewed_by===body.actor&&(target==='approved'||current.review_note===note))return reply({ok:true,duplicate:true});
+  const result=await env.CXR_COMMERCE_DB.prepare("UPDATE web_contract_requests SET status=?,reviewed_by=?,reviewed_at=CURRENT_TIMESTAMP,review_note=? WHERE id=? AND status='paid_review' AND payment_id IS NOT NULL").bind(target,body.actor,note,body.id).run();return result.meta.changes?reply({ok:true}):reply({error:'La solicitud cambió o aún no tiene pago verificado.'},409);
  }
  if(request.headers.get('origin')!==u.origin)return reply({error:'Origen no permitido.'},403);
  if(!configured(env))return reply({error:'La contratación online todavía está en preparación. No se realizó ningún cobro.'},503);

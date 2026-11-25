@@ -29,6 +29,7 @@ export async function onRequest({request,env}){
   return reply({reports:rows.results.map(r=>({...JSON.parse(r.content_json),releasedAt:r.released_at}))});
  }
  if(request.method!=='POST')return reply({error:'Método no permitido.'},405);
+ if(env.CX_CLIENT_PUBLISH_TOKEN&&env.CX_CLIENT_PUBLISH_TOKEN===env.CX_CLIENT_RELEASE_TOKEN)return reply({error:'Las claves de preparación y entrega deben ser diferentes.'},503);
  const publish=typeof env.CX_CLIENT_PUBLISH_TOKEN==='string'&&env.CX_CLIENT_PUBLISH_TOKEN.length>=32&&bearer===env.CX_CLIENT_PUBLISH_TOKEN;
  const release=typeof env.CX_CLIENT_RELEASE_TOKEN==='string'&&env.CX_CLIENT_RELEASE_TOKEN.length>=32&&bearer===env.CX_CLIENT_RELEASE_TOKEN;
  if(!publish&&!release)return reply({error:'Acceso no autorizado.'},401);
