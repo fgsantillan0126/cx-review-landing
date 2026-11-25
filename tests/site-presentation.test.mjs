@@ -7,7 +7,7 @@ const express=plans.find(p=>p.id==='express');
 for(const [id,percent,saving,total] of [['quarterly',15,2400000,7200000],['halfyear',25,4000000,24000000],['annual',35,5600000,67200000]])assert.deepEqual(planSavings(plans.find(p=>p.id===id),express),{reference:16000000,percent,saving,total});
 for(const p of plans){if(!p.months)assert.equal(planSavings(p,express),null);assert.ok(fs.existsSync(new URL('../assets/services/'+p.id+'.svg',import.meta.url)));}
 for(const file of pages()){
- const html=fs.readFileSync(file,'utf8');assert.equal(html.match(/<header\b[^>]*>[\s\S]*?<\/header>/)?.[0],header,file);
+ const html=fs.readFileSync(file,'utf8').replace(/\r\n/g,'\n');assert.equal(html.match(/<header\b[^>]*>[\s\S]*?<\/header>/)?.[0],header,file);
  assert.equal((html.match(/site-header\.css\?/g)||[]).length,1,file);assert.equal((html.match(/site-header\.js\?/g)||[]).length,1,file);
  assert.ok(!html.includes('/assets/js/navigation.js'),file);
  if(file.endsWith('clientes/index.html')||file.endsWith('clientes\\index.html'))assert.equal((html.match(/id="exit"/g)||[]).length,1);
